@@ -361,3 +361,12 @@
 2018-06-07 09:27:57 main.py[line:96] ERROR 数据执行失败:(1146, "Table 'task.department' doesn't exist")
 2018-06-07 09:27:58 main.py[line:96] ERROR 数据执行失败:(1146, "Table 'task.department' doesn't exist")
 2018-06-07 09:28:21 main.py[line:96] ERROR 数据执行失败:(1146, "Table 'task.department' doesn't exist")
+2018-06-07 09:30:15 main.py[line:71] ERROR 数据写入失败:(1452, 'Cannot add or update a child row: a foreign key constraint fails (`task`.`user`, CONSTRAINT `user_ibfk_4` FOREIGN KEY (`teamname`) REFERENCES `team` (`name`) ON DELETE SET NULL ON UPDATE SET NULL)')
+2018-06-08 21:33:08 main.py[line:96] ERROR 数据执行失败:not all arguments converted during string formatting
+2018-06-08 21:45:06 main.py[line:96] ERROR 数据执行失败:not all arguments converted during string formatting
+2018-06-08 21:45:07 main.py[line:96] ERROR 数据执行失败:not all arguments converted during string formatting
+2018-06-08 21:46:05 main.py[line:96] ERROR 数据执行失败:not all arguments converted during string formatting
+2018-06-08 23:24:12 main.py[line:96] ERROR 数据执行失败:(1271, "Illegal mix of collations for operation '='")
+2018-06-08 23:24:33 main.py[line:96] ERROR 数据执行失败:(1271, "Illegal mix of collations for operation '='")
+2018-06-08 23:25:13 main.py[line:96] ERROR 数据执行失败:(1271, "Illegal mix of collations for operation '='")
+2018-06-08 23:53:41 main.py[line:96] ERROR 数据执行失败:(1271, "Illegal mix of collations for operation '='")

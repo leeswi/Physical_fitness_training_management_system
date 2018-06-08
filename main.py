@@ -631,7 +631,7 @@ def infotask(id):
     """
     taskinfo = readDb(task_sql,(id,))
 
-    return template('infotask',taskinfo=json.dumps(taskinfo),myusername=myusername)
+    return template('infotask',taskinfo=taskinfo,myusername=myusername)
 
 @route('/infotask/<id>',method="POST")
 @checkLogin
@@ -855,66 +855,83 @@ def getmytask():
     result = readDb(sql,(myid,myid))
     return json.dumps(result)
 
-@route('/mysendtask')
+@route('/score')
 @checkLogin
-def mysendtask():
-    """我发布的任务页面"""
-    return template('mysendtask')
+def showscore():
+    """成绩管理界面"""
+    s = request.environ.get('beaker.session')
+    return template('score',session=s)
 
-@route('/api/getmysendtask',method="POST")
+@route('/api/getscorelist',method="POST")
 @checkLogin
-def getmysendtask():
-    """获取我发布的任务API接口"""
+def getscore():
+    """获取成绩信息"""
     status = request.query.witchbtn or -1
     wherestr = "WHERE 1=1"
-    if int(status) in [0,1,2]:
-        wherestr = ' '.join((wherestr,'AND T.status=%d' % int(status)))
     s = request.environ.get('beaker.session')
-    myid = s['userid']
+    if int(status) in [0,1,2]:
+        wherestr = ' '.join((wherestr,'AND S.status=%d' % int(status)))
+    sql = """
+            SELECT
+                S.id,
+                S.inputid,
+                S.subject,
+                u.name as inputid,
+                date_format(S.date,'%%Y-%%m-%%d') as date,
+                S.del_status
+            FROM
+               scorelist as S
+               LEFT OUTER JOIN user as u on u.id=S.inputid
+            {where} AND S.del_status=1
+    """.format(where=wherestr)
+    result = readDb(sql,)
+    return json.dumps(result)
+
+@route('/infoscore/<date>')
+@checkLogin
+def getscore(date):
+    s = request.environ.get('beaker.session')
+    str = date
     sql = """
         SELECT
-            t.id,
-            t.inputid,
-            t.subject,
-            t.status,
-            t.itemid,
-            t.departmentid,
-            t.startdate,
-            t.enddate,
-            t.priority,
-            case when t.userid is null then t.zrbm when t.userid is not null then t.userid end as userid,
-            case when t.assistid is null then t.xzbm when t.assistid is not null then t.assistid end as assistid
+            sc.id,
+            sc.subject,
+            date_format(sc.date,'%%Y%%m%%d') as date,
+            u.name as name,
+            sc.inputid
         FROM
-          (
-            SELECT
-                T.id,
-                T.inputid,
-                T.subject,
-                T.status,
-                u.name as userid,
-                depid.name as zrbm,
-                xzr.name as assistid,
-                    xzbm.name as xzbm,
-                    item.name as itemid,
-                    department.name as departmentid,
-                date_format(T.startdate,'%%Y-%%m-%%d') as startdate,
-                date_format(T.enddate,'%%Y-%%m-%%d') as enddate,
-                T.priority
-            FROM
-               task as T
-               LEFT OUTER JOIN user as u on u.id=T.userid
-               LEFT OUTER JOIN department as depid on depid.id=T.depid
-               LEFT OUTER JOIN user as xzr on xzr.id=T.assistid
-               LEFT OUTER JOIN department as xzbm on xzbm.id=T.assdepid
-               INNER JOIN item on item.id=T.itemid
-               INNER JOIN department ON department.id=T.departmentid
-            {where} AND T.del_status=1 AND T.inputid=%s
-            ORDER BY
-                status,priority,enddate
-            ) AS t
-    """.format(where=wherestr)
-    result = readDb(sql,(myid))
-    return json.dumps(result)
+            scorelist AS sc
+            LEFT OUTER JOIN user as u on u.id=sc.inputid
+        WHERE
+            sc.date = %s
+            
+    """
+    result = readDb(sql, (str,))
+    return template('scoreinfo',scoreinfo=result,session=s)
+
+@route('/api/getscoreinfo/<date>',method=['GET', 'POST'])
+@checkAccess
+def getscoreinfo(date):
+    dates = date[0:4]+"-"+date[4:6]+"-"+date[6:8]
+    print dates
+    sql = """
+        SELECT
+            S.id,
+            u.name as name,
+            S.wugongli,
+            S.sibaimi,
+            S.dangang1,
+            S.dangang2,
+            u.teamname as teamname,
+            date_format(s.date,'%%Y-%%m-%%d') as date
+        FROM
+            score AS S
+            LEFT OUTER JOIN user as u on u.id=S.id
+        WHERE 
+            S.date = %s
+    """
+    scorelist = readDb(sql,(dates,))
+    return json.dumps(scorelist)
 
 @route('/droptask')
 @checkAccess

@@ -1,12 +1,11 @@
-%rebase base title='任务列表  日常训练管理系统',position='训练计划列表',managetopli="active open",adduser="active"
-
+%rebase base title='成绩管理  日常训练管理系统',position='成绩管理',managetopli="active open",adduser="active"
 <div class="page-body">
     <div class="row">
         <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
             <div class="widget">
                 <div class="widget-header bordered-bottom bordered-themesecondary">
                     <i class="widget-icon fa fa-tags themesecondary"></i>
-                    <span class="widget-caption themesecondary">训练计划列表</span>
+                    <span class="widget-caption themesecondary">成绩单管理</span>
                     <div class="widget-buttons">
                         <a href="#" data-toggle="maximize">
                             <i class="fa fa-expand"></i>
@@ -23,20 +22,11 @@
                 <div class="widget-body  no-padding">
                     <div class="tickets-container">
 						<div class="table-toolbar" style="float:left">
-                            <a id="adduser" href="/addtask" class="btn btn-primary">
-                                <i class="btn-label fa fa-plus"></i>发布计划
+                            <a id="adduser" href="/addscorelist" class="btn btn-primary">
+                                <i class="btn-label fa fa-plus"></i>发布成绩单
                             </a>
-							<a id="adduser" href="/taskinfo" class="btn">
-                                <i class="btn-label fa fa-home"></i>训练计划
-                            </a>
-							<a id="adduser" href="#" onclick = "getdata(0)" class="btn">
-                                <i class="btn-label fa fa-times-circle" ></i>未开始
-                            </a>
-                            <a id="changeuser" href="#" onclick = "getdata(1)" class="btn">
-                                <i class="btn-label fa fa-clock-o" ></i>进行中
-                            </a>
-                            <a id="deluser" href="#" class="btn" onclick = "getdata(2)">
-                                <i class="btn-label fa fa-check-square-o" ></i>已完成
+							<a id="adduser" href="/score" class="btn">
+                                <i class="btn-label fa fa-home"></i>成绩单管理
                             </a>
                         </div>
                        <table id="myLoadTable" class="table table-bordered table-hover"></table>
@@ -53,7 +43,7 @@ $(function(){
     */
     $('#myLoadTable').bootstrapTable({
           method: 'post',
-          url: '/api/gettask',
+          url: '/api/getscorelist',
           contentType: "application/json",
           datatype: "json",
           cache: false,
@@ -79,38 +69,25 @@ $(function(){
               width:25,
               sortable: false
           },{
-              field: 'planname',
-              title: '计划名',
+              field: 'subject',
+              title: '成绩单',
               align: 'center',
               valign: 'middle',
               sortable: false,
               formatter:getinfo1
           },{
 
-              field: 'begin',
-              title: '开始日期',
+              field: 'date',
+              title: '日期',
               align: 'center',
               valign: 'middle',
               sortable: false,
           },{
-              field: 'end',
-              title: '结束日期',
+              field: 'inputid',
+              title: '管理员',
               align: 'center',
               valign: 'middle',
               sortable: false
-          },{
-              field: 'name',
-              title: '负责人',
-              align: 'center',
-			  valign: 'middle',
-              sortable: false,
-          },{
-              field: 'status',
-              title: '状态',
-              align: 'center',
-              valign: 'middle',
-              sortable: false,
-              formatter:status
           },{
               field: '',
               title: '操作',
@@ -118,7 +95,6 @@ $(function(){
               valign: 'middle',
               width:200,
               formatter:getinfo  //？
-
           }]
       });
 
@@ -153,44 +129,12 @@ $(function(){
             eval('rowobj='+JSON.stringify(row));
             console.log(JSON.stringify(row));
             return [
-                '<a href="/infotask/'+rowobj['id']+'" style="text-decoration:none">',
-                    rowobj['planname'],
+                '<a href="/infoscore/'+rowobj['date']+'" style="text-decoration:none">',
+                    rowobj['subject'],
                  '</a>'
             ].join('');
         }
 
-
-        function status(value,row,index){
-            eval('var rowobj='+JSON.stringify(row))
-            var statusstr = '';
-            if(rowobj['status'] == '0'){
-                statusstr = '<span class="label label-danger">未开始</span>'
-            }else if(rowobj['status'] == '1'){
-                statusstr = '<span class="label label-success">进行中</span>'
-            }else if(rowobj['status'] == '2'){
-                statusstr = '<span class="label label-default">已完成</span>'
-            }
-            return [
-                statusstr
-            ].join('');
-        }
-
-        function priority(value,row,index){
-			eval('var rowobj='+JSON.stringify(row))
-			var prioritystr = '';
-			if(rowobj['level'] == '1'){
-				statusstr = '<span class="badge badge-info">1</span>'
-			}else if(rowobj['level'] == '2'){
-				statusstr = '<span class="badge badge-success">2</span>'
-			}else if(rowobj['level'] == '3'){
-				statusstr = '<span class="badge badge-warning">3</span>'
-			}else if(rowobj['level'] == '4'){
-				statusstr = '<span class="badge badge-danger">4</span>'
-			}
-			return [
-				statusstr
-			].join('');
-        }
 })
 function getdata(param){
     $("#myLoadTable").bootstrapTable('refresh',{url: '/api/gettask?witchbtn='+param});

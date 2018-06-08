@@ -57,7 +57,7 @@
                     </a>
                 </li>
                 <li class="">
-                    <a href="/">
+                    <a href="/score">
                         <span class="menu-text">成绩管理</span>
                     </a>
                 </li>
