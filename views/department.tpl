@@ -152,7 +152,6 @@ $(function(){
     /**
     *添加弹出框
     */
-
 	$('#adddepartment').click(function(){
         $('#modalTitle').html('添加分组');
         $('#hidInput').val('0');

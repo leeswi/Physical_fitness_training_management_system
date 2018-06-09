@@ -370,3 +370,11 @@
 2018-06-08 23:24:33 main.py[line:96] ERROR 数据执行失败:(1271, "Illegal mix of collations for operation '='")
 2018-06-08 23:25:13 main.py[line:96] ERROR 数据执行失败:(1271, "Illegal mix of collations for operation '='")
 2018-06-08 23:53:41 main.py[line:96] ERROR 数据执行失败:(1271, "Illegal mix of collations for operation '='")
+2018-06-09 10:13:43 main.py[line:96] ERROR 数据执行失败:(1146, "Table 'task.item' doesn't exist")
+2018-06-09 10:13:43 main.py[line:96] ERROR 数据执行失败:(1146, "Table 'task.department' doesn't exist")
+2018-06-09 17:18:35 main.py[line:71] ERROR 数据写入失败:sequence item 0: expected string, dict found
+2018-06-09 17:20:06 main.py[line:71] ERROR 数据写入失败:sequence item 0: expected string, dict found
+2018-06-09 17:23:09 main.py[line:71] ERROR 数据写入失败:(1054, "Unknown column 'subject' in 'field list'")
+2018-06-09 17:24:43 main.py[line:71] ERROR 数据写入失败:(1054, "Unknown column 'subject' in 'field list'")
+2018-06-09 17:31:32 main.py[line:71] ERROR 数据写入失败:(1452, 'Cannot add or update a child row: a foreign key constraint fails (`task`.`scorelist`, CONSTRAINT `scorelist_ibfk_1` FOREIGN KEY (`inputid`) REFERENCES `user` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION)')
+2018-06-09 20:13:18 main.py[line:96] ERROR 数据执行失败:%d format: a number is required, not str

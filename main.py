@@ -199,7 +199,7 @@ def adduser():
         """
     data = (name,username,passwd,birthday,sex,height,email,Company,weight,access,teamname)
     result = writeDb(sql,data)
-    print result
+
     if result:
         return '0'
     else:
@@ -254,7 +254,6 @@ def changeuser(id):
 @checkAccess
 def deluser():
     id = request.forms.get('str').rstrip(',')
-    print id
     if not id:
         return '-1'
 
@@ -495,7 +494,7 @@ def do_addtask():
     userid = int(request.forms.get("userid"))
     startdate = request.forms.get("startdate")
     enddate = request.forms.get("enddate")
-    print startdate
+
 
     sql = """
         INSERT INTO
@@ -730,7 +729,7 @@ def editpartment(id):
 def deluser():
     """删除部门"""
     id = request.forms.get('str').rstrip(',')
-    print id
+
     if not id:
         return '-1'
 
@@ -913,10 +912,20 @@ def getscore(date):
 @checkAccess
 def getscoreinfo(date):
     dates = date[0:4]+"-"+date[4:6]+"-"+date[6:8]
-    print dates
     sql = """
+    SELECT
+        uu.id,
+        uu.name,
+        T.date,
+        case when T.wugongli is null then "暂无" when T.wugongli is not null then T.wugongli end as wugongli,
+        case when T.sibaimi is null then "暂无" when T.sibaimi is not null then T.sibaimi end as sibaimi,
+        case when T.dangang1 is null then "暂无" when T.dangang1 is not null then T.dangang1 end as dangang1,
+        case when T.dangang2 is null then "暂无" when T.dangang2 is not null then T.dangang2 end as dangang2,
+        T.teamname
+    FROM
+        (
         SELECT
-            S.id,
+            u.id,
             u.name as name,
             S.wugongli,
             S.sibaimi,
@@ -925,13 +934,189 @@ def getscoreinfo(date):
             u.teamname as teamname,
             date_format(s.date,'%%Y-%%m-%%d') as date
         FROM
-            score AS S
-            LEFT OUTER JOIN user as u on u.id=S.id
-        WHERE 
-            S.date = %s
+            user as u
+            LEFT JOIN score as S on u.id=S.id
+        where
+            date is null or date = %s
+        ) as T
+    RIGHT JOIN user as uu on uu.id=T.id
     """
     scorelist = readDb(sql,(dates,))
     return json.dumps(scorelist)
+
+@route('/addscorelist',method="POST")
+@checkAccess
+def addscore():
+    subject = request.forms.get("subject")
+    date = request.forms.get("date")
+    name = request.forms.get("chargeman")
+
+    if not (subject and date and name):
+        message = "表单不允许为空！"
+        return message
+
+    sql1 = """
+            SELECT 
+              id 
+            FROM 
+              user 
+            WHERE 
+              name = %s
+            """
+    inputid = readDb(sql1, (name,))
+    inputid = inputid[0]['id']
+    sql = """
+            INSERT INTO
+                scorelist(subject,inputid,date)
+            VALUES(%s,%s,%s)
+        """
+    data = (subject,inputid,date)
+    result = writeDb(sql,data)
+    if result:
+        return '0'
+    else:
+        return '-1'
+
+@route('/changescore/<id>',method="POST")
+@checkAccess
+def changeuser(id):
+    subject = request.forms.get("subject")
+    date = request.forms.get("date")
+    name = request.forms.get("chargeman")
+    if not (subject and date and name):
+        message = "表单不允许为空！"
+        return message
+    sql1 = """
+        SELECT 
+          id 
+        FROM 
+          user 
+        WHERE 
+          name = %s
+        """
+    inputid = readDb(sql1,(name,))
+    inputid = inputid[0]['id']
+    sql2 = """
+            UPDATE scorelist SET
+            subject=%s,date=%s,inputid=%s
+            WHERE id=%s
+        """
+    data = (subject,date,inputid,id)
+
+    result = writeDb(sql2,data)
+    if result:
+        return '0'
+    else:
+        return '-1'
+
+@route('/changeuserscore/<date>',method="POST")
+@checkAccess
+def changeuserscore(date):
+    date = date[0:4] + "-" + date[4:6] + "-" + date[6:8]
+    name = request.forms.get("name")
+    wugongli = request.forms.get("wugongli")
+    sibaimi = request.forms.get("sibaimi")
+    print sibaimi
+    dangang1 = request.forms.get("dangang1")
+    dangang2 = request.forms.get("dangang2")
+    if not (name):
+        message = "表单不允许为空！"
+        return message
+    sql1 = """
+            SELECT 
+              id 
+            FROM 
+              user 
+            WHERE 
+              name = %s
+            """
+    inputid = readDb(sql1, (name,))
+    id = inputid[0]['id']
+    sql2 = """
+        SELECT * FROM score WHERE date=%s AND id=%s 
+    """
+    result2 = readDb(sql2,(date,id))
+    if(result2==[]):
+        print "3"
+        sql3 = """
+                INSERT INTO score(
+                id,wugongli,sibaimi,dangang1,dangang2,date)
+                VALUES(%s,%s,%s,%s,%s,%s)
+            """
+        data = (id,wugongli,sibaimi,dangang1,dangang2,date)
+        print data
+        result3 = writeDb(sql3,data)
+        if result3:
+            return '0'
+        else:
+            return '-1'
+    else:
+        sql4 = """
+            UPDATE score SET
+                wugongli=%s,sibaimi=%s,dangang1=%s,dangang2=%s
+            WHERE id=%s AND date=%s
+        """
+        data = (wugongli,sibaimi,dangang1,dangang2,id,date)
+        result4 = writeDb(sql4,data)
+        if result4:
+            return '0'
+        else:
+            return '-1'
+
+@route('/delscore/<id>')
+@checkLogin
+def delscore(id):
+    """删除任务，其实就是把任务的删除状态改成0（0为被删除，1为正常）"""
+    s = request.environ.get('beaker.session')
+    del_userid = s['userid']
+    sql = """
+        UPDATE
+            scorelist
+        SET
+            del_userid=%s,
+            del_status=%s
+        WHERE
+            id=%s
+    """
+    data = (del_userid,0,id)
+    result = writeDb(sql,data)
+    if result:
+        redirect('/score')
+    else:
+        return '-1'
+
+@route('/addscore',method="POST")
+@checkAccess
+def addscore():
+    subject = request.forms.get("subject")
+    date = request.forms.get("date")
+    name = request.forms.get("chargeman")
+
+    if not (subject and date and name):
+        message = "表单不允许为空！"
+        return message
+
+    sql1 = """
+            SELECT 
+              id 
+            FROM 
+              user 
+            WHERE 
+              name = %s
+            """
+    inputid = readDb(sql1, (name,))
+    inputid = inputid[0]['id']
+    sql = """
+            INSERT INTO
+                scorelist(subject,inputid,date)
+            VALUES(%s,%s,%s)
+        """
+    data = (subject,inputid,date)
+    result = writeDb(sql,data)
+    if result:
+        return '0'
+    else:
+        return '-1'
 
 @route('/droptask')
 @checkAccess

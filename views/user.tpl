@@ -153,7 +153,6 @@ $(function(){
               width:25,
               sortable: false,
           },{
-
               field: 'name',
               title: '姓名',
               align: 'center',
@@ -232,7 +231,6 @@ $(function(){
     /**
     *修改弹出框
     */
-
     $('#changeuser').popover({
     	    html: true,
     	    container: 'body',

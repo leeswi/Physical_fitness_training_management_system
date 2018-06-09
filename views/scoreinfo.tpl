@@ -23,13 +23,10 @@
                 <div style="padding:-10px 0px;" class="widget-body no-padding">
                     <div class="tickets-container">
                         <div class="table-toolbar" style="float:left">
-                                <a id="adduser" href="javascript:void(0);" class="btn  btn-primary ">
-                                <i class="btn-label fa fa-plus"></i>添加成绩
-                            </a>
-                            <a id="changeuser" href="javascript:void(0);" class="btn btn-warning shiny">
+                            <a id="changeuserscore" href="javascript:void(0);" class="btn btn-warning shiny">
                                 <i class="btn-label fa fa-cog"></i>更新成绩
                             </a>
-                            <a id="deluser" href="javascript:void(0);" class="btn btn-darkorange">
+                            <a id="deluserscore" href="javascript:void(0);" class="btn btn-darkorange">
                                 <i class="btn-label fa fa-times"></i>删除成绩
                             </a>
                         </div>
@@ -57,51 +54,20 @@
                   <input type="text" class="form-control" id="name" name="name" require>
                 </div>
                 <div class="form-group">
-                  <label class="control-label" for="inputSuccess1">帐号：</label>
-                  <input type="text" class="form-control" id="username" name="username" require>
+                  <label class="control-label" for="inputSuccess1">五公里：</label>
+                  <input type="text" class="form-control" id="wugongli" name="wugongli" placeholder="eg. xx分xx秒">
                 </div>
                 <div class="form-group">
-                  <label class="control-label" for="inputSuccess1">密码：</label>
-                  <input type="password" class="form-control" id="passwd" name="passwd" require>
-                </div>
-                <div class="form-group">
-                  <label class="control-label" for="inputSuccess1">生日：</label>
-                  <input type="date" class="form-control" id="birthday" name="birthday">
-                </div>
-                <div class="form-group">
-                  <label class="control-label" for="inputSuccess1">性别：</label>
-				  <select id="sex" style="width:100%;" name="sex">
-                    <option value='女'>女</option>
-                    <option value='男'>男</option>
-                 </select>
-                </div>
-                </div>
-                <div class="form-group">
-                  <label class="control-label" for="inputSuccess1">分组：</label>
-				  <select id="teamname" style="width:100%;" name="teamname">
-                    <option value=''>请选择分组</option>
-
-                 </select>
-                </div>
-                <div class="form-group">
-                  <label class="control-label" for="inputSuccess1">身高：</label>
-                  <input type="text" class="form-control" id="height" name="height" placeholder="cm">
-                </div>
-                <div class="form-group">
-                  <label class="control-label" for="inputSuccess1">体重：</label>
-                  <input type="text" class="form-control" id="weight" name="weight" placeholder="kg">
+                  <label class="control-label" for="inputSuccess1">400米障碍：</label>
+                  <input type="text" class="form-control" id="sibaimi" name="sibaimi" placeholder="eg. xx分xx秒">
                 </div>
 				<div class="form-group">
-                  <label class="control-label" for="inputSuccess1">邮箱：</label>
-                  <input type="text" class="form-control" id="email" name="email" placeholder="12306@nudt.com">
+                  <label class="control-label" for="inputSuccess1">引体向上：</label>
+                  <input type="text" class="form-control" id="dangang1" name="dangang1">
                 </div>
                 <div class="form-group">
-                  <label class="control-label" for="inputSuccess1">身份：</label>
-                  <select id="access" style="width:100%;" name="access">
-                    <option value='0'>学员</option>
-                    <option value='2'>负责人</option>
-                    <option value='1'>管理员</option>
-                 </select>
+                  <label class="control-label" for="inputSuccess1">单杠卷身上：</label>
+                  <input type="text" class="form-control" id="dangang2" name="dangang2">
                 <br></br>
                 <input type="hidden" id="hidInput" value="">
                 <button type="button" id="subBtn" class="btn btn-primary  btn-sm">提交</button>
@@ -133,12 +99,13 @@ $(function(){
           search: true,
           showColumns: true,
           showRefresh: true,
+          sortable: true,
           minimumCountColumns: 2,
           clickToSelect: true,
           smartDisplay: true,
           //sidePagination : "server",
-          sortOrder: 'asc',
-          sortName: 'id',
+          sortOrder: 'DESC',
+          sortName: 'dangang1',
           columns: [{
               field: 'bianhao',
               title: 'checkbox',
@@ -188,25 +155,11 @@ $(function(){
               sortable: false
           },]
       });
-
-    /**
-    *添加弹出框
-    */
-
-	$('#adduser').click(function(){
-        $('#modalTitle').html('添加用户');
-        $('#hidInput').val('0');
-        $('#myModal').modal('show');
-        $('#modalForm')[0].reset();
-        isEdit = 0;
-    });
-
-
     /**
     *修改弹出框
     */
 
-    $('#changeuser').popover({
+    $('#changeuserscore').popover({
     	    html: true,
     	    container: 'body',
     	    content : "<h3 class='btn btn-danger'>请选择一条进行操作</h3>",
@@ -216,23 +169,19 @@ $(function(){
     		var result = $("#myLoadTable").bootstrapTable('getSelections');
     		if(result.length <= 0){
     			$(this).popover("show");
-    			setTimeout("$('#changeuser').popover('hide')",1000)
+    			setTimeout("$('#changeuserscore').popover('hide')",1000)
     		}
     		if(result.length > 1){
     			$(this).popover("show");
-    			setTimeout("$('#changeuser').popover('hide')",1000)
+    			setTimeout("$('#changeuserscore').popover('hide')",1000)
     		}
     		if(result.length == 1){
-                $('#changeuser').popover('hide');
+                $('#changeuserscore').popover('hide');
                 $('#name').val(result[0]['name']);
-                $('#username').val(result[0]['username']);
-                $('#passwd').val(result[0]['passwd']);
-                $('#birthday').val(result[0]['birthday']);
-                $('#sex').val(result[0]['sex']);
-                $('#qq').val(result[0]['qq']);
-                $('#email').val(result[0]['email']);
-                $('#phone').val(result[0]['phone']);
-                $('#access').val(result[0]['access']);
+                $('#wugongli').val(result[0]['wugongli']);
+                $('#sibaimi').val(result[0]['sibaimi']);
+                $('#dangang1').val(result[0]['dangang1']);
+                $('#dangang2').val(result[0]['dangang2']);
                 $('#modalTitle').html('修改用户');     //头部修改
                 $('#hidInput').val('1');            //修改标志
                 $('#myModal').modal('show');
@@ -246,27 +195,20 @@ $(function(){
     */
     $("#subBtn").click(function(){
            var name = $('#name').val();
-           var username = $('#username').val();
-           var passwd = $('#passwd').val();
-           var birthday = $('#birthday').val();
-           var sex = $('#sex').val();
-           var height = $('#height').val();
-           var email = $('#email').val();
-           var Company = $('#Company').val();
-           var weight = $('#weight').val();
-           var access = $('#access').val();
-           var teamname = $('#teamname').val();
+           var wugongli = $('#wugongli').val();
+           var sibaimi = $('#sibaimi').val();
+           var dangang1 = $('#dangang1').val();
+           var dangang2 = $('#dangang2').val();
            var postUrl;
            if(isEdit==1){
-                postUrl = "/changeuser/"+editId;           //修改路径
+                postUrl = "/changeuserscore/"+{{scoreinfo[0].get('date','未知')}};           //修改路径
                 console.log(postUrl);
            }else{
-                postUrl = "/adduser";          //添加路径
+                postUrl = "/adduserscore";          //添加路径
                 console.log(postUrl);
            }
 
-           $.post(postUrl,{name:name,username:username,passwd:passwd,birthday:birthday,sex:sex,height:height,email:email,Company:Company,weight:weight,access:access,teamname:teamname},function(data){
-                  console.log("11");
+           $.post(postUrl,{name:name,wugongli:wugongli,sibaimi:sibaimi,dangang1:dangang1,dangang2:dangang2},function(data){
                   if(data==0){
                     $('#myModal').modal('hide');
                     $('#myLoadTable').bootstrapTable('refresh');
