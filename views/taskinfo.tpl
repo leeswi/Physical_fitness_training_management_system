@@ -137,7 +137,6 @@ $(function(){
             }else{
                 var style_del = '&nbsp;<a class="btn-sm btn-danger" disabled>';
             }
-
             return [
                 style_edit,
                     '<i class="fa fa-edit"> 编辑</i>',

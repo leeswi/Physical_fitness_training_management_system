@@ -596,6 +596,18 @@ def do_edittask(id):
     else:
         return '修改失败'
 
+@route('/taskSignIn/<id>/<tid>')
+@checkLogin
+def SignIn(id,tid):
+    #获取任务详细内容页
+    s = request.environ.get('beaker.session')
+    myusername = s['name']
+    sql = "UPDATE task SET SignIn=1 WHERE tid = %s"
+    result = writeDb(sql,(tid,))
+    if result:
+        redirect ("/infotask/"+id)
+    else:
+        return '-1'
 
 @route('/infotask/<id>')
 @checkLogin
@@ -612,25 +624,49 @@ def infotask(id):
     	   T.status,
     	   date_format(T.begin,'%%Y-%%m-%%d') as startdate,
     	   date_format(T.end,'%%Y-%%m-%%d') as enddate,
-    	   ts.userid,
-    	   ts.content,
-    	   date_format(ts.date,'%%Y-%%m-%%d') as dates,
-    	   date_format(ts.begintime,'%%Y-%%m-%%d %%h:%%i:%%s') as begintime,
-    	   date_format(ts.finishtime,'%%Y-%%m-%%d %%h:%%i:%%s') as finishtime,
-    	   ts.place,
-    	   ts.level,
-    	   ts.teamid,
     	   case when t.status = 0 then '未开始' when t.status = 1 then '进行中' ELSE '已完成' end as status
     	FROM
     	   plan as T
     	   LEFT OUTER JOIN user as u on u.id=T.inputid
-    	   LEFT OUTER JOIN task as ts on ts.id=T.id
     	WHERE
     	   T.id=%s
     """
     taskinfo = readDb(task_sql,(id,))
+    sql2 = "select name from user where access=2"
+    chargeman = readDb(sql2, )
+    sql3 = "select content from pcontent"
+    content = readDb(sql3, )
+    sql4 = "select place from pplace"
+    place = readDb(sql4, )
+    sql5 = "select name from team"
+    teamid = readDb(sql5, )
+    return template('infotask',taskinfo=taskinfo,myusername=myusername,teamid=teamid,place=place,chargeman=chargeman,content=content)
 
-    return template('infotask',taskinfo=taskinfo,myusername=myusername)
+@route('/api/gettaskinfo/<id>',method=['GET', 'POST'])
+@checkAccess
+def gettaskinfo(id):
+    sql1 = """
+    SELECT
+        t.id,
+        te.chargeman as name,
+        t.tid,
+        date_format(t.date,'%%Y-%%m-%%d ') as date,
+        date_format(t.begintime, '%%k:%%i:%%s') as begintime,
+        t.place,
+        pc.level,
+        t.lasttime,
+        t.teamid,
+        t.content,
+        t.SignIn
+    FROM
+        task as t 
+        LEFT OUTER JOIN pcontent as pc on pc.content=t.content
+        LEFT OUTER JOIN team as te on te.name=t.teamid
+    WHERE
+        t.id=%s AND del_status = 1
+    """
+    tasklist = readDb(sql1,(id,))
+    return json.dumps(tasklist)
 
 @route('/infotask/<id>',method="POST")
 @checkLogin
@@ -660,6 +696,94 @@ def do_infotask(id):
         data = (reply_userid,content,id)
         writeDb(sql,data)
         redirect('/infotask/%s' % id)
+
+@route('/addtaskinfo/<id>',method="POST")
+@checkAccess
+def addtaskinfo(id):
+    date = request.forms.get("date")
+    begintime = request.forms.get("begintime")
+    lasttime = request.forms.get("lasttime")
+    content = request.forms.get("content")
+    place = request.forms.get("place")
+    teamid = request.forms.get("teamid")
+    #检测表单各项值，如果出现为空的表单，则返回提示
+    if not (date):
+        message = "表单不允许为空！"
+        print message
+        return '-2'
+
+    sql = """
+            INSERT INTO
+                task(id,date,begintime,lasttime,content,place,teamid)
+            VALUES(%s,%s,%s,%s,%s,%s,%s)
+        """
+    data = (id,date,begintime,lasttime,content,place,teamid)
+    result = writeDb(sql,data)
+
+    if result:
+        return '0'
+    else:
+        return '-1'
+
+@route('/changetaskinfo/<id>/<tid>',method="POST")
+@checkAccess
+def changeuser(id,tid):
+    date = request.forms.get("date")
+    begintime = request.forms.get("begintime")
+    lasttime = request.forms.get("lasttime")
+    content = request.forms.get("content")
+    place = request.forms.get("place")
+    teamid = request.forms.get("teamid")
+    if not (date):
+        message = "表单不允许为空！"
+        return message
+    sql = """
+            UPDATE task SET
+            date=%s,begintime=%s,lasttime=%s,content=%s,place=%s,teamid=%s
+            WHERE id=%s AND tid=%s
+        """
+    data = (date,begintime,lasttime,content,place,teamid,id,tid)
+    result = writeDb(sql,data)
+    if result:
+        return '0'
+    else:
+        return '-1'
+
+@route('/deltaskinfo',method=['POST','GET'])
+@checkLogin
+def deltaskinfo():
+    """删除任务，其实就是把任务的删除状态改成0（0为被删除，1为正常）"""
+    s = request.environ.get('beaker.session')
+    del_userid = s['userid']
+    str = request.forms.get("str")
+    id = request.forms.get("id")
+    print id
+    tid = str.split(',')
+    success=0
+    length = 0
+    for i in tid:
+        if i:
+            length=length+1
+            sql = """
+                        UPDATE
+                            task
+                        SET
+                            del_userid=%s,
+                            del_status=%s
+                        WHERE
+                            tid=%s
+                    """
+            data = (del_userid, 0, i)
+            result = writeDb(sql, data)
+            if result:
+                success=success+1
+    if success==length:
+        return '0'
+    else:
+        return '-1'
+
+
+
 
 @route('/api/getdepartment',method=['POST','GET'])
 @checkLogin

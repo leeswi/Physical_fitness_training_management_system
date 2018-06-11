@@ -378,3 +378,26 @@
 2018-06-09 17:24:43 main.py[line:71] ERROR 数据写入失败:(1054, "Unknown column 'subject' in 'field list'")
 2018-06-09 17:31:32 main.py[line:71] ERROR 数据写入失败:(1452, 'Cannot add or update a child row: a foreign key constraint fails (`task`.`scorelist`, CONSTRAINT `scorelist_ibfk_1` FOREIGN KEY (`inputid`) REFERENCES `user` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION)')
 2018-06-09 20:13:18 main.py[line:96] ERROR 数据执行失败:%d format: a number is required, not str
+2018-06-10 23:11:33 main.py[line:96] ERROR 数据执行失败:(1146, "Table 'task.item' doesn't exist")
+2018-06-10 23:11:33 main.py[line:96] ERROR 数据执行失败:(1146, "Table 'task.department' doesn't exist")
+2018-06-10 23:26:24 main.py[line:96] ERROR 数据执行失败:(1054, "Unknown column 'T.planname' in 'field list'")
+2018-06-10 23:31:00 main.py[line:96] ERROR 数据执行失败:(1054, "Unknown column 'T.inputid' in 'field list'")
+2018-06-10 23:31:04 main.py[line:96] ERROR 数据执行失败:(1054, "Unknown column 'T.inputid' in 'field list'")
+2018-06-10 23:48:34 main.py[line:96] ERROR 数据执行失败:(1054, "Unknown column 'ts.date' in 'field list'")
+2018-06-10 23:48:40 main.py[line:96] ERROR 数据执行失败:(1054, "Unknown column 'ts.date' in 'field list'")
+2018-06-11 14:35:31 main.py[line:96] ERROR 数据执行失败:(1146, "Table 'task.item' doesn't exist")
+2018-06-11 14:35:31 main.py[line:96] ERROR 数据执行失败:(1146, "Table 'task.department' doesn't exist")
+2018-06-11 15:27:18 main.py[line:96] ERROR 数据执行失败:not all arguments converted during string formatting
+2018-06-11 15:27:24 main.py[line:96] ERROR 数据执行失败:not all arguments converted during string formatting
+2018-06-11 15:27:44 main.py[line:96] ERROR 数据执行失败:not all arguments converted during string formatting
+2018-06-11 15:27:45 main.py[line:96] ERROR 数据执行失败:not all arguments converted during string formatting
+2018-06-11 15:27:45 main.py[line:96] ERROR 数据执行失败:not all arguments converted during string formatting
+2018-06-11 15:27:49 main.py[line:96] ERROR 数据执行失败:not all arguments converted during string formatting
+2018-06-11 15:28:55 main.py[line:96] ERROR 数据执行失败:(1146, "Table 'task.item' doesn't exist")
+2018-06-11 15:28:55 main.py[line:96] ERROR 数据执行失败:(1146, "Table 'task.department' doesn't exist")
+2018-06-11 19:30:42 main.py[line:96] ERROR 数据执行失败:(1146, "Table 'task.item' doesn't exist")
+2018-06-11 19:30:42 main.py[line:96] ERROR 数据执行失败:(1146, "Table 'task.department' doesn't exist")
+2018-06-11 19:31:04 main.py[line:96] ERROR 数据执行失败:(1146, "Table 'task.item' doesn't exist")
+2018-06-11 19:31:04 main.py[line:96] ERROR 数据执行失败:(1146, "Table 'task.department' doesn't exist")
+2018-06-11 20:25:33 main.py[line:71] ERROR 数据写入失败:(1452, 'Cannot add or update a child row: a foreign key constraint fails (`task`.`task`, CONSTRAINT `task_ibfk_12` FOREIGN KEY (`place`) REFERENCES `pplace` (`place`) ON DELETE SET NULL ON UPDATE CASCADE)')
+2018-06-11 20:25:42 main.py[line:71] ERROR 数据写入失败:(1452, 'Cannot add or update a child row: a foreign key constraint fails (`task`.`task`, CONSTRAINT `task_ibfk_12` FOREIGN KEY (`place`) REFERENCES `pplace` (`place`) ON DELETE SET NULL ON UPDATE CASCADE)')

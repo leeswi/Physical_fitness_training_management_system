@@ -95,7 +95,7 @@
                 </div>
 				<div class="form-group">
                   <label class="control-label" for="inputSuccess1">邮箱：</label>
-                  <input type="text" class="form-control" id="email" name="email" placeholder="12306@nudt.com">
+                  <input type="email" class="form-control" id="email" name="email" placeholder="12306@nudt.com">
                 </div>
                 <div class="form-group">
                   <label class="control-label" for="inputSuccess1">身份：</label>
@@ -214,11 +214,9 @@ $(function(){
               sortable: false
           }]
       });
-
     /**
     *添加弹出框
     */
-
 	$('#adduser').click(function(){
         $('#modalTitle').html('添加用户');
         $('#hidInput').val('0');
@@ -226,8 +224,6 @@ $(function(){
         $('#modalForm')[0].reset();
         isEdit = 0;
     });
-
-
     /**
     *修改弹出框
     */
