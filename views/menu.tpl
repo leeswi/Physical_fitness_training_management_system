@@ -62,7 +62,7 @@
                     </a>
                 </li>
                 <li>
-                    <a href="/">
+                    <a href="/scoremore">
                         <span class="menu-text">成绩分析</span>
                     </a>
                 </li>

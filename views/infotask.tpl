@@ -1,4 +1,22 @@
 %rebase base title='任务详细  日常训练管理系统',position='任务详细'
+<style>
+    #change:link {
+    color:red;
+    text-decoration:underline;
+    }
+    #change:visited {
+    color:#00FF00;
+    text-decoration:none;
+    }
+    #change:hover {
+    color:#000000;
+    text-decoration:none;
+    }
+    #change:active {
+    color:#FFFFFF;
+    text-decoration:none;
+    }
+</style>
 <div class="page-body">
     <div class="row">
         <div class="col-lg-9 col-md-9 col-sm-12 col-xs-12">
@@ -15,7 +33,7 @@
 						</div>
                         <div class="tickets-container">
                             <div class="table-toolbar" style="float:left">
-                                    <a id="addtask" href="javascript:void(0);" class="btn  btn-primary ">
+                                <a id="addtask" href="javascript:void(0);" class="btn  btn-primary ">
                                     <i class="btn-label fa fa-plus"></i>添加计划项目
                                 </a>
                                 <a id="changetask" href="javascript:void(0);" class="btn btn-warning shiny">
@@ -27,9 +45,6 @@
                             </div>
                            <table id="myLoadTable" class="table table-bordered table-hover"></table>
                         </div>
-						<div>
-						<table id="myLoadTable" class="table table-bordered table-hover"></table>
-						</div>
                     </div>
                 </div>
 
@@ -41,8 +56,23 @@
                   <div class="col-lg-12 col-sm-12 col-xs-12">
                       <div class="widget-header bordered-bottom bordered-blue ">
                           <i class="widget-icon fa fa-pencil themeprimary"></i>
-                          <span class="widget-caption themeprimary">操作</span>
+                          <span class="widget-caption themeprimary">操作：</span>
+                          <span class="widget-caption themeprimary"><a id="change" href="javascript:Loadchange(1)">科目/</a></span>
+                          <span class="widget-caption themeprimary"><a id="change" href="javascript:Loadchange(2)">场地</a></span>
                       </div>
+                      <div class="tickets-container">
+                            <div class="table-toolbar" style="float:left">
+                                <a id="addtask" href="javascript:void(0);" class="btn  btn-primary ">
+                                    <i class="btn-label fa fa-plus"></i>添加
+                                </a>
+                                <a id="#" href="javascript:Loadchange(2)" class="btn btn-warning shiny">
+                                    <i class="btn-label fa fa-cog"></i>修改
+                                </a>
+                            </div>
+                            <div id="changeID">
+                                <table id="myLoadTable2" class="table table-bordered table-hover" style="margin-bottom:50px"></table>
+                            </div>
+                        </div>
                   </div>
                 </div>
            </div>
@@ -111,10 +141,104 @@
 </div>
 <script src="/assets/js/datetime/bootstrap-datepicker.js"></script>
 <script type="text/javascript">
+function Loadchange(num){
+    console.log(num);
+    if(num==1){//科目
+        document.getElementById("changeID").innerHTML = "<table id=\"myLoadTable2\" class=\"table table-bordered table-hover\"></table>";
+        $('#myLoadTable2').bootstrapTable({
+          method: 'post',
+          url: '/api/getcontent',
+          contentType: "application/json",
+          datatype: "json",
+          cache: false,
+          striped: true,
+          showColumns: true,
+          minimumCountColumns: 2,
+          clickToSelect: true,
+          smartDisplay: true,
+          //sidePagination : "server",
+          sortOrder: 'asc',
+          sortName: 'cid',
+          columns: [{
+              field: 'cid',
+              title: '编号',
+              align: 'center',
+              valign: 'middle',
+              width:10,
+              sortable: false
+          },{
+              field: 'content',
+              title: '训练科目',
+              align: 'center',
+              valign: 'middle',
+              sortable: false,
+          },{
+              field: '',
+              title: '操作',
+              align: 'center',
+              valign: 'middle',
+              formatter:getinfo1
+          }]
+      });
+    }
+    else if(num==2){
+        document.getElementById("changeID").innerHTML = "<table id=\"myLoadTable3\" class=\"table table-bordered table-hover\"></table>";
+        $('#myLoadTable3').bootstrapTable({
+          method: 'post',
+          url: '/api/getplace',
+          contentType: "application/json",
+          datatype: "json",
+          cache: false,
+          striped: true,
+          showColumns: true,
+          minimumCountColumns: 2,
+          clickToSelect: true,
+          smartDisplay: true,
+          //sidePagination : "server",
+          sortOrder: 'asc',
+          sortName: 'plid',
+          columns: [{
+              field: 'plid',
+              title: '编号',
+              align: 'center',
+              valign: 'middle',
+              width:10,
+              sortable: false
+          },{
+              field: 'place',
+              title: '训练场地',
+              align: 'center',
+              valign: 'middle',
+              sortable: false,
+          },{
+              field: '',
+              title: '操作',
+              align: 'center',
+              valign: 'middle',
+              formatter:getinfo1,
+          }]
+      });
+    }
+    }
+
+function getinfo1(value,row,index){
+            eval('rowobj='+JSON.stringify(row));
+            //定义删除按钮样式，只有管理员或自己编辑的任务才有权删除
+            var style_del = '&nbsp;<a href="#'+rowobj['id']+'" class="btn-sm btn-danger">';
+
+            return [
+                style_del,
+                    '<i class="fa fa-times"> 删除</i>',
+                '</a>'
+            ].join('');
+        }
+
+
 $(function(){
     /**
     *表格数据
     */
+    Loadchange(1);//默认加载内容
     $('#myLoadTable').bootstrapTable({
           method: 'post',
           url: '/api/gettaskinfo/'+{{taskinfo[0].get('id','未知')}},
@@ -203,6 +327,7 @@ $(function(){
               formatter:getinfo
           }]
       });
+
 
     //定义列操作
     function getinfo(value,row,index){
@@ -308,27 +433,45 @@ $(function(){
            var place = $('#place').val();
            var teamid = $('#teamid').val();
            var postUrl;
-           console.log(date);
-           if(isEdit==1){
-                postUrl = "/changetaskinfo/"+editId+"/"+editTid;           //修改路径
-                console.log(postUrl);
-           }else{
-                postUrl = "/addtaskinfo/"+editId;          //添加路径
-                console.log(postUrl);
+           var datebegin = '{{taskinfo[0].get('startdate','未知')}}';
+           var dateend = '{{taskinfo[0].get('enddate','未知')}}';
+           //日期判定
+           datebegin=datebegin.replace(/-/g,"/");
+           dateend=dateend.replace(/-/g,"/");
+           var dateB = new Date(datebegin);
+           var dateE = new Date(dateend);
+           var dateinput = new Date(date);
+           if (dateinput<dateB || dateinput>dateE){
+               alert("输入的日期请在计划实施期间内！")
+           }else {
+               if (isEdit == 1) {
+                   postUrl = "/changetaskinfo/" + editId + "/" + editTid;           //修改路径
+                   console.log(postUrl);
+               } else {
+                   postUrl = "/addtaskinfo/" + editId;          //添加路径
+                   console.log(postUrl);
+               }
+               $.post(postUrl, {
+                   date: date,
+                   begintime: begintime,
+                   lasttime: lasttime,
+                   content: content,
+                   place: place,
+                   teamid: teamid
+               }, function (data) {
+                   if (data == 0) {
+                       $('#myModal').modal('hide');
+                       $('#myLoadTable').bootstrapTable('refresh');
+                       message.message_show(200, 200, '成功', '操作成功');
+                   } else if (data == -1) {
+                       message.message_show(200, 200, '失败', '操作失败');
+                   } else {
+                       alert(data);
+                       return false;
+                   }
+               }, 'html');
            }
-           $.post(postUrl,{date:date,begintime:begintime,lasttime:lasttime,content:content,place:place,teamid:teamid},function(data){
-                  if(data==0){
-                    $('#myModal').modal('hide');
-                    $('#myLoadTable').bootstrapTable('refresh');
-                    message.message_show(200,200,'成功','操作成功');
-                  }else if(data==-1){
-                      message.message_show(200,200,'失败','操作失败');
-                  }else{
-                        console.log(data);return false;
-                }
-            },'html');
        });
-
         /**
         *删除按钮操作
         */

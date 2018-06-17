@@ -250,9 +250,10 @@ $(function(){
                 $('#passwd').val(result[0]['passwd']);
                 $('#birthday').val(result[0]['birthday']);
                 $('#sex').val(result[0]['sex']);
-                $('#qq').val(result[0]['qq']);
+                $('#height').val(result[0]['height']);
+                $('#teamname').val(result[0]['teamname']);
                 $('#email').val(result[0]['email']);
-                $('#phone').val(result[0]['phone']);
+                $('#weight').val(result[0]['weight']);
                 $('#access').val(result[0]['access']);
                 $('#modalTitle').html('修改用户');     //头部修改
                 $('#hidInput').val('1');            //修改标志

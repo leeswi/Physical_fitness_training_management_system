@@ -55,11 +55,11 @@
                 </div>
                 <div class="form-group">
                   <label class="control-label" for="inputSuccess1">五公里：</label>
-                  <input type="text" class="form-control" id="wugongli" name="wugongli" placeholder="eg. xx分xx秒">
+                  <input type="time" class="form-control" id="wugongli" name="wugongli" placeholder="eg. xx分xx秒">
                 </div>
                 <div class="form-group">
                   <label class="control-label" for="inputSuccess1">400米障碍：</label>
-                  <input type="text" class="form-control" id="sibaimi" name="sibaimi" placeholder="eg. xx分xx秒">
+                  <input type="time" class="form-control" id="sibaimi" name="sibaimi" placeholder="eg. xx分xx秒">
                 </div>
 				<div class="form-group">
                   <label class="control-label" for="inputSuccess1">引体向上：</label>

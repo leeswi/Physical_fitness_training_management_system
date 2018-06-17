@@ -143,11 +143,20 @@ def server_static(filename):
     """定义/assets/下的静态(css,js,图片)资源路径"""
     return static_file(filename, root=assets_path)
 
+@route('/assets/js/<filename:re:.*\.css|.*\.js|.*\.png|.*\.jpg|.*\.gif>')
+def server_static(filename):
+    """定义/assets/下的静态(css,js,图片)资源路径"""
+    return static_file(filename, root=assets_path)
+
 @route('/assets/<filename:re:.*\.ttf|.*\.otf|.*\.eot|.*\.woff|.*\.svg|.*\.map>')
 def server_static(filename):
     """定义/assets/字体资源路径"""
     return static_file(filename, root=assets_path)
 
+@route('/images/<filename:re:.*\.jpg|.*\.png>')
+def server_static(filename):
+    """定义图片资源路径"""
+    return static_file(filename, root=images_path)
 
 @route('/')
 @checkLogin   #函数调用
@@ -323,154 +332,31 @@ def item():
     s = request.environ.get('beaker.session')
     return template('item',session=s)
 
-@route('/api/getitem',method=['GET', 'POST'])
+@route('/api/getcontent',method=['GET', 'POST'])
 @checkLogin
-def getitem():
+def getcontent():
     sql = """
         SELECT
-            I.id,
-            I.name,
-            U.name as userid,
-            I.itype,
-            date_format(I.adddate,'%%Y-%%m-%%d %%h:%%i:%%s') as adddate,
-            date_format(I.startdate,'%%Y-%%m-%%d') as startdate,
-            date_format(I.enddate,'%%Y-%%m-%%d') as enddate,
-            I.status
+            p.cid,
+            p.content
         FROM
-            item as I
-            LEFT OUTER JOIN user as U on U.id=I.userid
-        WHERE I.del_status=1
+            pcontent as p
     """
-    item_list = readDb(sql,)
-    return json.dumps(item_list)
+    content_list = readDb(sql,)
+    return json.dumps(content_list)
 
-
-
-@route('/additem')
+@route('/api/getplace',method=['GET', 'POST'])
 @checkLogin
-def additem():
-    return template('additem',info={})
-
-@route('/additem',method="POST")
-@checkLogin
-def do_additem():
-    s = request.environ.get('beaker.session')
-    name = request.forms.get("name")
-    itype = request.forms.get("itype")
-    startdate = request.forms.get("startdate")
-    enddate = request.forms.get("enddate")
-    userid = s.get('userid',0)
-    content = request.forms.get("content")
-    sql = "INSERT INTO item(name,userid,itype,startdate,enddate,content) VALUES(%s,%s,%s,%s,%s,%s)"
-    data = (name,userid,itype,startdate,enddate,content)
-    result = writeDb(sql,data)
-    redirect('/item')
-
-@route('/edititem/<id>')
-@checkLogin
-def edititem(id):
-    s = request.environ.get('beaker.session')
+def getplace():
     sql = """
         SELECT
-            name,
-            userid,
-            itype,
-            date_format(startdate,'%%Y-%%m-%%d') as startdate,
-            date_format(enddate,'%%Y-%%m-%%d') as enddate,
-            content,
-            status
+            p.plid,
+            p.place
         FROM
-            item
-        WHERE id = %s
-        """
-    result = readDb(sql,(id))
-    if not result:
-        abort(404)
-    if result[0].get('userid') != s.get('userid',None) and s.get('access',None) == 0:
-        abort(404)
-    return template('additem',info=result[0])
-
-@route('/edititem/<id>',method="POST")
-@checkLogin
-def do_edititem(id):
-    name = request.forms.get("name")
-    itype = request.forms.get("itype")
-    startdate = request.forms.get("startdate")
-    enddate = request.forms.get("enddate")
-    content = request.forms.get("content")
-    sql = "UPDATE item SET name=%s,itype=%s,startdate=%s,enddate=%s,content=%s WHERE id=%s"
-    data = (name,itype,startdate,enddate,content,id)
-    result = writeDb(sql,data)
-    redirect('/item')
-
-@route('/delitem/<id>')
-@checkLogin
-def delitem(id):
-    s = request.environ.get('beaker.session')
-    del_userid = s['userid']
-    sql = """
-        UPDATE
-            item
-        SET
-            del_userid=%s,
-            del_status=%s
-        WHERE
-            id=%s
+            pplace as p
     """
-    data = (del_userid,0,id)
-    result = writeDb(sql,data)
-    if result:
-        redirect('/item')
-    else:
-        return '-1'
-
-@route('/dropitem')
-@checkLogin
-def dropitem():
-    return template('dropitem')
-
-@route('/api/dropitem',method=['GET', 'POST'])
-@checkLogin
-def dropitem():
-    sql = """
-        SELECT
-            I.id,
-            I.name,
-            U1.name as userid,
-            U2.name as del_userid,
-            I.itype,
-            date_format(I.adddate,'%%Y-%%m-%%d %%h:%%i:%%s') as adddate,
-            date_format(I.startdate,'%%Y-%%m-%%d') as startdate,
-            date_format(I.enddate,'%%Y-%%m-%%d') as enddate,
-            I.status
-        FROM
-            item as I
-            LEFT OUTER JOIN user as U1 on U1.id=I.userid
-            LEFT OUTER JOIN user as U2 on U2.id=I.del_userid
-        WHERE
-            I.del_status=0
-        """
-    item_list = readDb(sql,)
-    return json.dumps(item_list)
-
-
-@route('/recoveryitem/<id>')
-@checkLogin
-def recoveryitem(id):
-    sql = """
-        UPDATE
-            item
-        SET
-            del_status=%s
-        WHERE
-            id=%s
-    """
-    data = (1,id)
-    result = writeDb(sql,data)
-    if result:
-        redirect('/dropitem')
-    else:
-        return '-1'
+    place_list = readDb(sql,)
+    return json.dumps(place_list)
 
 
 
@@ -781,9 +667,6 @@ def deltaskinfo():
         return '0'
     else:
         return '-1'
-
-
-
 
 @route('/api/getdepartment',method=['POST','GET'])
 @checkLogin
@@ -1140,7 +1023,6 @@ def changeuserscore(date):
     name = request.forms.get("name")
     wugongli = request.forms.get("wugongli")
     sibaimi = request.forms.get("sibaimi")
-    print sibaimi
     dangang1 = request.forms.get("dangang1")
     dangang2 = request.forms.get("dangang2")
     if not (name):
@@ -1321,162 +1203,45 @@ def deltask(id):
     else:
         return '-1'
 
-@route('/recoverytask/<id>')
+@route('/scoremore')
 @checkLogin
-def recovery(id):
-    """恢复任务，即把任务的删除状态从0改成1（0为被删除，1为正常）"""
-    sql = """
-        UPDATE
-            task
-        SET
-            del_status=%s
-        WHERE
-            id=%s
-    """
-    data = (1,id)
-    result = writeDb(sql,data)
-    if result:
-        redirect('/droptask')
-    else:
-        return '-1'
-
-@route('/infoitem/<id>')
-@checkLogin
-def infoitem(id):
-    """任务内容详情页"""
-    item_sql = """
-       SELECT
-            I.id,
-            I.name,
-            U.name as userid,
-            I.itype,
-            date_format(I.adddate,'%%Y-%%m-%%d') as adddate,
-            date_format(I.startdate,'%%Y-%%m-%%d') as startdate,
-            date_format(I.enddate,'%%Y-%%m-%%d') as enddate,
-            I.content,
-            I.status
-        FROM
-            item AS I
-            LEFT OUTER JOIN user AS U on I.userid = U.id
-        WHERE
-            I.id=%s
-    """
-
-    task_count_sql = """
-        select
-          (select count(1) from task where itemid=%s) as cou,
-          (select count(1) from task where status=0 and itemid=%s) as wait,
-          (select count(1) from task where status=1 and itemid=%s) as doing,
-          (select count(1) from task where status=2 and itemid=%s) as finish
-    """
-    item_data = readDb(item_sql,(id))
-    task_count = readDb(task_count_sql,(id,id,id,id))
-    return template('infoitem',item_data=item_data,task_count=task_count)
-
-@route('/api/getiteminfo',method=["GET","POST"])
-@checkLogin
-def do_infoitem():
-    try:
-        id = request.environ.get('HTTP_REFERER',0)
-        id = id.split('/')[-1]
-    except Exception:
-        id = 0;
-    sql = """
-     SELECT
-        t.id,
-        t.inputid,
-        t.subject,
-        t.status,
-        t.itemid,
-        t.departmentid,
-        t.startdate,
-        t.enddate,
-        t.priority,
-        case when t.userid is null then t.zrbm when t.userid is not null then t.userid end as userid,
-        case when t.assistid is null then t.xzbm when t.assistid is not null then t.assistid end as assistid
-     FROM
-        (
-         SELECT
-             T.id,
-             Ui.name as inputid,
-             T.subject,
-             T.status,
-             u.name as userid,
-             depid.name as zrbm,
-             xzr.name as assistid,
-             xzbm.name as xzbm,
-             item.name as itemid,
-             department.name as departmentid,
-             date_format(T.startdate,'%%Y-%%m-%%d') as startdate,
-             date_format(T.enddate,'%%Y-%%m-%%d') as enddate,
-             T.priority
-        FROM
-             task as T
-             LEFT OUTER JOIN user as u on u.id=T.userid
-             LEFT OUTER JOIN user as Ui on Ui.id=T.inputid
-             LEFT OUTER JOIN department as depid on depid.id=T.depid
-             LEFT OUTER JOIN user as xzr on xzr.id=T.assistid
-             LEFT OUTER JOIN department as xzbm on xzbm.id=T.assdepid
-             INNER JOIN item on item.id=T.itemid
-             INNER JOIN department ON department.id=T.departmentid
-         WHERE T.del_status=1 AND T.itemid = %s
-         ) AS t
-     """
-    result = readDb(sql,(id))
-    return json.dumps(result)
-
-@route('/api/get_item_task/<id>',method=['GET','POST'])
-@checkLogin
-def tasklist(id):
-    status = request.query.witchbtn or -1
-    wherestr = "WHERE 1=1"
-    if int(status) in [0,1,2]:
-        wherestr = ' '.join((wherestr,'AND T.status=%d' % int(status)))
+def getscoremore():
+    s = request.environ.get('beaker.session')
+    id = s['userid']
+    #耐力计算公式：24分-17分=420秒，1-（成绩-17分）/420秒=耐力值
+    #速度计算公式：2分40秒-1分40秒=60秒，1-（成绩-100秒）/60秒=速度值
+    #力量计算公积：（单杠1+单杠2*2）/(36+20*2)=力量值（假设单杠1 12个及格，2 9个及格）
     sql = """
         SELECT
-           t.id,
-           t.inputid,
-           t.subject,
-           t.status,
-           t.itemid,
-           t.departmentid,
-           t.startdate,
-           t.enddate,
-           t.priority,
-           case when t.userid is null then t.zrbm when t.userid is not null then t.userid end as userid,
-           case when t.assistid is null then t.xzbm when t.assistid is not null then t.assistid end as assistid
+            FORMAT(1-(((avg(time_to_sec(s.wugongli)))-1020)/420),2)*100 as naili,
+            FORMAT(1-(((avg(time_to_sec(s.sibaimi)))-100)/60),2)*100 as sudu,
+            FORMAT((AVG(s.dangang1)+AVG(s.dangang2)*2)/76,2)*100 as liliang,
+            u.height,
+            u.weight
         FROM
-           (
-            SELECT
-                T.id,
-                Ui.name as inputid,
-                T.subject,
-                T.status,
-                u.name as userid,
-                depid.name as zrbm,
-                xzr.name as assistid,
-                xzbm.name as xzbm,
-                item.name as itemid,
-                department.name as departmentid,
-                date_format(T.startdate,'%%Y-%%m-%%d') as startdate,
-                date_format(T.enddate,'%%Y-%%m-%%d') as enddate,
-                T.priority
-           FROM
-                task as T
-                LEFT OUTER JOIN user as u on u.id=T.userid
-                LEFT OUTER JOIN user as Ui on Ui.id=T.inputid
-                LEFT OUTER JOIN department as depid on depid.id=T.depid
-                LEFT OUTER JOIN user as xzr on xzr.id=T.assistid
-                LEFT OUTER JOIN department as xzbm on xzbm.id=T.assdepid
-                INNER JOIN item on item.id=T.itemid
-                INNER JOIN department ON department.id=T.departmentid
-            {where} AND T.del_status=1 AND T.itemid=%s
-            ) AS t
-        """.format(where=wherestr)
-
-    tasklist = readDb(sql,(id))
-    return json.dumps(tasklist)
-
+        (
+        SELECT 
+            id,
+            wugongli,
+            sibaimi,
+            case when dangang1 = '暂无' then null else dangang1 end as dangang1,
+            case when dangang2 = '暂无' then null else dangang2 end as dangang2
+        FROM
+            score
+        WHERE
+            id=%s
+        ) AS s
+        LEFT OUTER JOIN user as u on u.id=s.id
+    """
+    result = readDb(sql,(id,))
+    # print result[0]
+    for i in result[0].values():
+        if(i):
+            i=int(i)
+        else:
+            i=0
+    print result
+    return template('scoremore',result=result)
 
 
 if __name__ == '__main__':

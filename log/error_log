@@ -401,3 +401,19 @@
 2018-06-11 19:31:04 main.py[line:96] ERROR 数据执行失败:(1146, "Table 'task.department' doesn't exist")
 2018-06-11 20:25:33 main.py[line:71] ERROR 数据写入失败:(1452, 'Cannot add or update a child row: a foreign key constraint fails (`task`.`task`, CONSTRAINT `task_ibfk_12` FOREIGN KEY (`place`) REFERENCES `pplace` (`place`) ON DELETE SET NULL ON UPDATE CASCADE)')
 2018-06-11 20:25:42 main.py[line:71] ERROR 数据写入失败:(1452, 'Cannot add or update a child row: a foreign key constraint fails (`task`.`task`, CONSTRAINT `task_ibfk_12` FOREIGN KEY (`place`) REFERENCES `pplace` (`place`) ON DELETE SET NULL ON UPDATE CASCADE)')
+2018-06-11 23:35:15 main.py[line:96] ERROR 数据执行失败:(1146, "Table 'task.item' doesn't exist")
+2018-06-11 23:35:15 main.py[line:96] ERROR 数据执行失败:(1146, "Table 'task.department' doesn't exist")
+2018-06-14 17:12:59 main.py[line:96] ERROR 数据执行失败:(1146, "Table 'task.item' doesn't exist")
+2018-06-14 17:12:59 main.py[line:96] ERROR 数据执行失败:(1146, "Table 'task.department' doesn't exist")
+2018-06-14 17:21:46 main.py[line:96] ERROR 数据执行失败:(1146, "Table 'task.item' doesn't exist")
+2018-06-14 17:21:46 main.py[line:96] ERROR 数据执行失败:(1146, "Table 'task.department' doesn't exist")
+2018-06-16 15:21:39 main.py[line:96] ERROR 数据执行失败:%d format: a number is required, not str
+2018-06-16 15:23:36 main.py[line:96] ERROR 数据执行失败:%d format: a number is required, not str
+2018-06-16 15:24:34 main.py[line:96] ERROR 数据执行失败:%d format: a number is required, not str
+2018-06-16 23:01:48 main.py[line:96] ERROR 数据执行失败:not enough arguments for format string
+2018-06-16 23:06:08 main.py[line:96] ERROR 数据执行失败:not enough arguments for format string
+2018-06-16 23:59:42 main.py[line:96] ERROR 数据执行失败:'long' object is not iterable
+2018-06-17 00:03:58 main.py[line:96] ERROR 数据执行失败:'long' object is not iterable
+2018-06-17 00:04:19 main.py[line:96] ERROR 数据执行失败:'long' object is not iterable
+2018-06-17 00:05:20 main.py[line:96] ERROR 数据执行失败:'long' object is not iterable
+2018-06-17 00:06:02 main.py[line:96] ERROR 数据执行失败:'long' object is not iterable

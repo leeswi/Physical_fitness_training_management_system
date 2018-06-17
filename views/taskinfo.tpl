@@ -118,7 +118,6 @@ $(function(){
               valign: 'middle',
               width:200,
               formatter:getinfo  //？
-
           }]
       });
 
