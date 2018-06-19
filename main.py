@@ -1234,15 +1234,98 @@ def getscoremore():
         LEFT OUTER JOIN user as u on u.id=s.id
     """
     result = readDb(sql,(id,))
-    # print result[0]
-    for i in result[0].values():
-        if(i):
-            i=int(i)
-        else:
-            i=0
-    print result
-    return template('scoremore',result=result)
+    name_sql = "select id,name from user;"
+    name_result = readDb(name_sql, )
+    AVG_sql = """
+    SELECT 
+        FORMAT(1-(((avg(time_to_sec(s.wugongli)))-1020)/420),2)*100 as naili,
+        FORMAT(1-(((avg(time_to_sec(s.sibaimi)))-100)/60),2)*100 as sudu,
+        FORMAT((AVG(s.dangang1)+AVG(s.dangang2)*2)/76,2)*100 as liliang,
+        AVG(u.height) as height,
+        AVG(u.weight) as weight
+    FROM
+        score AS s
+    LEFT OUTER JOIN user as u on u.id=s.id
+    WHERE
+        date=(
+        SELECT MAX(date) FROM score
+        )
+    """
+    AVG_result = readDb(AVG_sql,)
+    return template('scoremore',result=result,name=name_result,select="",AVG_result=AVG_result)
 
+@route('/scoremore',method="POST")
+@checkLogin
+def getscoremore():
+    s = request.environ.get('beaker.session')
+    id = s['userid']
+    select_id = request.forms.get("name")
+    sql = """
+        SELECT
+            FORMAT(1-(((avg(time_to_sec(s.wugongli)))-1020)/420),2)*100 as naili,
+            FORMAT(1-(((avg(time_to_sec(s.sibaimi)))-100)/60),2)*100 as sudu,
+            FORMAT((AVG(s.dangang1)+AVG(s.dangang2)*2)/76,2)*100 as liliang,
+            u.height,
+            u.weight
+        FROM
+        (
+        SELECT 
+            id,
+            wugongli,
+            sibaimi,
+            case when dangang1 = '暂无' then null else dangang1 end as dangang1,
+            case when dangang2 = '暂无' then null else dangang2 end as dangang2
+        FROM
+            score
+        WHERE
+            id=%s
+        ) AS s
+        LEFT OUTER JOIN user as u on u.id=s.id
+    """
+    result = readDb(sql,(id,))
+    name_sql = "select id,name from user;"
+    name_result = readDb(name_sql, )
+    AVG_sql = """
+        SELECT 
+            FORMAT(1-(((avg(time_to_sec(s.wugongli)))-1020)/420),2)*100 as naili,
+            FORMAT(1-(((avg(time_to_sec(s.sibaimi)))-100)/60),2)*100 as sudu,
+            FORMAT((AVG(s.dangang1)+AVG(s.dangang2)*2)/76,2)*100 as liliang,
+            AVG(u.height) as height,
+            AVG(u.weight) as weight
+        FROM
+            score AS s
+        LEFT OUTER JOIN user as u on u.id=s.id
+        WHERE
+            date=(
+            SELECT MAX(date) FROM score
+            )
+        """
+    AVG_result = readDb(AVG_sql, )
+    sql2 = """
+            SELECT
+                FORMAT(1-(((avg(time_to_sec(s.wugongli)))-1020)/420),2)*100 as naili,
+                FORMAT(1-(((avg(time_to_sec(s.sibaimi)))-100)/60),2)*100 as sudu,
+                FORMAT((AVG(s.dangang1)+AVG(s.dangang2)*2)/76,2)*100 as liliang,
+                u.height,
+                u.weight
+            FROM
+            (
+            SELECT 
+                id,
+                wugongli,
+                sibaimi,
+                case when dangang1 = '暂无' then null else dangang1 end as dangang1,
+                case when dangang2 = '暂无' then null else dangang2 end as dangang2
+            FROM
+                score
+            WHERE
+                id=%s
+            ) AS s
+            LEFT OUTER JOIN user as u on u.id=s.id
+        """
+    select_res = readDb(sql2,(select_id,))
+    print select_res
+    return template('scoremore',result=result,name=name_result,select=select_res,AVG_result=AVG_result)
 
 if __name__ == '__main__':
     app = default_app()
