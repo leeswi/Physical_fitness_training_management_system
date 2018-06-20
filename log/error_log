@@ -448,3 +448,6 @@
 2018-06-19 17:52:13 main.py[line:71] ERROR 数据写入失败:(1451, 'Cannot delete or update a parent row: a foreign key constraint fails (`task`.`scorelist`, CONSTRAINT `scorelist_ibfk_1` FOREIGN KEY (`inputid`) REFERENCES `user` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION)')
 2018-06-19 17:52:14 main.py[line:71] ERROR 数据写入失败:(1451, 'Cannot delete or update a parent row: a foreign key constraint fails (`task`.`scorelist`, CONSTRAINT `scorelist_ibfk_1` FOREIGN KEY (`inputid`) REFERENCES `user` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION)')
 2018-06-19 17:52:14 main.py[line:71] ERROR 数据写入失败:(1451, 'Cannot delete or update a parent row: a foreign key constraint fails (`task`.`scorelist`, CONSTRAINT `scorelist_ibfk_1` FOREIGN KEY (`inputid`) REFERENCES `user` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION)')
+2018-06-19 23:18:21 main.py[line:96] ERROR 数据执行失败:(1146, "Table 'task.item' doesn't exist")
+2018-06-19 23:18:21 main.py[line:96] ERROR 数据执行失败:(1146, "Table 'task.department' doesn't exist")
+2018-06-20 00:02:43 main.py[line:96] ERROR 数据执行失败:(1064, 'You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near \'\'MAX(date)\': "\'2018-06-22\'"}\' at line 6')

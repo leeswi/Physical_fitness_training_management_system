@@ -1252,7 +1252,35 @@ def getscoremore():
         )
     """
     AVG_result = readDb(AVG_sql,)
-    return template('scoremore',result=result,name=name_result,select="",AVG_result=AVG_result)
+    Date_sql = "SELECT subject,date FROM scorelist WHERE del_status=1"
+    date_result = readDb(Date_sql,)
+
+    dsql = 'select MAX(date) from score'
+    res = readDb(dsql,)
+    date = res[0].get('MAX(date)')
+    Sum_sql = """
+    SELECT
+        count((wugongli > '00:21:00' AND wugongli <= '00:23:00') OR NULL) AS 'w_jige',
+        count((wugongli <= '00:21:00' AND wugongli>'00:19:00') OR NULL) AS 'w_lianghao',
+        count(wugongli <= '00:19:00' OR NULL)  AS 'w_youxiu',
+        count(wugongli > '00:23:00' OR NULL)  AS 'w_bujige',
+        count((sibaimi > '00:02:15' AND sibaimi <= '00:02:30') OR NULL) AS 'z_jige',
+        count((sibaimi <= '00:02:15' AND sibaimi>'00:02:00') OR NULL) AS 'z_lianghao',
+        count(sibaimi <= '00:02:00' OR NULL)  AS 'z_youxiu',
+        count(sibaimi > '00:02:30' OR NULL)  AS 'z_bujige',
+        count((dangang1 >= '12' AND dangang1 < '18') OR NULL) AS '1_jige',
+        count((dangang1 < '25' AND dangang1>='18') OR NULL) AS '1_lianghao',
+        count(dangang1 >= '25' OR NULL)  AS '1_youxiu',
+        count(dangang1 < '12' OR NULL)  AS '1_bujige',
+        count((dangang2 >= '9' AND dangang2 < '12') OR NULL) AS '2_jige',
+        count((dangang2 < '18' AND dangang2>='12') OR NULL) AS '2_lianghao',
+        count(dangang2 >= '18' OR NULL)  AS '2_youxiu',
+        count(dangang2 < '9' OR NULL)  AS '2_bujige'
+    FROM score
+    WHERE date = %s
+    """
+    sum_result=readDb(Sum_sql,(date,))
+    return template('scoremore',result=result,name=name_result,date=date_result,sum=sum_result,select="",AVG_result=AVG_result)
 
 @route('/scoremore',method="POST")
 @checkLogin
@@ -1260,6 +1288,7 @@ def getscoremore():
     s = request.environ.get('beaker.session')
     id = s['userid']
     select_id = request.forms.get("name")
+    select_date = request.forms.get("date")
     sql = """
         SELECT
             FORMAT(1-(((avg(time_to_sec(s.wugongli)))-1020)/420),2)*100 as naili,
@@ -1301,33 +1330,66 @@ def getscoremore():
             )
         """
     AVG_result = readDb(AVG_sql, )
-    sql2 = """
-            SELECT
-                FORMAT(1-(((avg(time_to_sec(s.wugongli)))-1020)/420),2)*100 as naili,
-                FORMAT(1-(((avg(time_to_sec(s.sibaimi)))-100)/60),2)*100 as sudu,
-                FORMAT((AVG(s.dangang1)+AVG(s.dangang2)*2)/76,2)*100 as liliang,
-                u.height,
-                u.weight
-            FROM
-            (
-            SELECT 
-                id,
-                wugongli,
-                sibaimi,
-                case when dangang1 = '暂无' then null else dangang1 end as dangang1,
-                case when dangang2 = '暂无' then null else dangang2 end as dangang2
-            FROM
-                score
-            WHERE
-                id=%s
-            ) AS s
-            LEFT OUTER JOIN user as u on u.id=s.id
+    if(select_id):
+        sql2 = """
+                SELECT
+                    FORMAT(1-(((avg(time_to_sec(s.wugongli)))-1020)/420),2)*100 as naili,
+                    FORMAT(1-(((avg(time_to_sec(s.sibaimi)))-100)/60),2)*100 as sudu,
+                    FORMAT((AVG(s.dangang1)+AVG(s.dangang2)*2)/76,2)*100 as liliang,
+                    u.height,
+                    u.weight
+                FROM
+                (
+                SELECT 
+                    id,
+                    wugongli,
+                    sibaimi,
+                    case when dangang1 = '暂无' then null else dangang1 end as dangang1,
+                    case when dangang2 = '暂无' then null else dangang2 end as dangang2
+                FROM
+                    score
+                WHERE
+                    id=%s
+                ) AS s
+                LEFT OUTER JOIN user as u on u.id=s.id
+            """
+        select_res = readDb(sql2,(select_id,))
+    else:
+        select_res = ""
+    Date_sql = "SELECT subject,date FROM scorelist WHERE del_status=1"
+    date_result = readDb(Date_sql,)
+
+    Sum_sql = """
+        SELECT
+            count((wugongli > '00:21:00' AND wugongli <= '00:23:00') OR NULL) AS 'w_jige',
+            count((wugongli <= '00:21:00' AND wugongli>'00:19:00') OR NULL) AS 'w_lianghao',
+            count(wugongli <= '00:19:00' OR NULL)  AS 'w_youxiu',
+            count(wugongli > '00:23:00' OR NULL)  AS 'w_bujige',
+            count((sibaimi > '00:02:15' AND sibaimi <= '00:02:30') OR NULL) AS 'z_jige',
+            count((sibaimi <= '00:02:15' AND sibaimi>'00:02:00') OR NULL) AS 'z_lianghao',
+            count(sibaimi <= '00:02:00' OR NULL)  AS 'z_youxiu',
+            count(sibaimi > '00:02:30' OR NULL)  AS 'z_bujige',
+            count((dangang1 >= '12' AND dangang1 < '18') OR NULL) AS '1_jige',
+            count((dangang1 < '25' AND dangang1>='18') OR NULL) AS '1_lianghao',
+            count(dangang1 >= '25' OR NULL)  AS '1_youxiu',
+            count(dangang1 < '12' OR NULL)  AS '1_bujige',
+            count((dangang2 >= '9' AND dangang2 < '12') OR NULL) AS '2_jige',
+            count((dangang2 < '18' AND dangang2>='12') OR NULL) AS '2_lianghao',
+            count(dangang2 >= '18' OR NULL)  AS '2_youxiu',
+            count(dangang2 < '9' OR NULL)  AS '2_bujige'
+        FROM score
+        WHERE date = %s
         """
-    select_res = readDb(sql2,(select_id,))
-    print select_res
-    return template('scoremore',result=result,name=name_result,select=select_res,AVG_result=AVG_result)
+    if (select_date):
+        sum_result = readDb(Sum_sql, (select_date,))
+    else:
+        dsql = 'select MAX(date) from score'
+        res = readDb(dsql, )
+        date = res[0].get('MAX(date)')
+        sum_result = readDb(Sum_sql, (date,))
+    return template('scoremore',result=result,name=name_result,date=date_result,sum=sum_result,select=select_res,AVG_result=AVG_result)
 
 if __name__ == '__main__':
     app = default_app()
     app = SessionMiddleware(app, session_opts)
-    run(app=app,host='127.0.0.1', port=9090,debug=True,server='gevent')
+    run(app=app,host='172.20.10.2', port=9090,debug=True,server='gevent')
