@@ -29,6 +29,12 @@
                             <a id="deluserscore" href="javascript:void(0);" class="btn btn-darkorange">
                                 <i class="btn-label fa fa-times"></i>删除成绩
                             </a>
+                            <form style="display:none" action="" method="post" enctype="multipart/form-data">
+                            　　<input type="file" name="file" value="">
+                            </form>
+                            <a href="javascript:;" class="import btn btn-primary " >
+                                <i class="btn-label fa fa-plus"></i>导入Excel成绩表
+                            </a>
                         </div>
                        <table id="myLoadTable" class="table table-bordered table-hover"></table>
                     </div>
@@ -38,16 +44,11 @@
     </div>
 </div>
 
+
 <div class="modal fade" id="myModal" tabindex="-1" role="dialog"  aria-labelledby="myModalLabel" aria-hidden="true">
     <div class="modal-dialog" >
       <div class="modal-content" id="contentDiv">
-         <div class="widget-header bordered-bottom bordered-blue ">
-           <i class="widget-icon fa fa-pencil themeprimary"></i>
-           <span class="widget-caption themeprimary" id="modalTitle">添加用户</span>
-        </div>
-
          <div class="modal-body">
-            <div>
             <form id="modalForm">
                 <div class="form-group">
                   <label class="control-label" for="inputSuccess1">姓名：</label>
@@ -68,22 +69,33 @@
                 <div class="form-group">
                   <label class="control-label" for="inputSuccess1">单杠卷身上：</label>
                   <input type="text" class="form-control" id="dangang2" name="dangang2">
-                <br></br>
+                </div>
                 <input type="hidden" id="hidInput" value="">
                 <button type="button" id="subBtn" class="btn btn-primary  btn-sm">提交</button>
                 <button type="button" class="btn btn-warning btn-sm" data-dismiss="modal">关闭</button>
-             </form>
-            </div>
+            </form>
          </div>
       </div>
    </div>
 </div>
+<script>
+$('.import').click(function(){
+　　$(this).prev('form').find('[name="file"]').trigger('click');
+});
+// 当表单文件有变化时执行提交动作
+$('[name="file"]').change(function(){
+　　if($(this).val()){
+　　　　$('.import').addClass('disabled' );
+　　　　$(this).parent().submit();
+　　}
+});
+</script>
 <script type="text/javascript">
 $(function(){
     /**
     *表格数据
     */
-    var editId;        //定义全局操作数据变量
+    var editId;    //定义全局操作数据变量
 	var isEdit;
     $('#myLoadTable').bootstrapTable({
           method: 'post',
@@ -147,18 +159,11 @@ $(function(){
               align: 'center',
               valign: 'middle',
               sortable: false
-          },{
-              field: 'teamname',
-              title: '分组',
-              align: 'center',
-              valign: 'middle',
-              sortable: false
           },]
       });
     /**
     *修改弹出框
     */
-
     $('#changeuserscore').popover({
     	    html: true,
     	    container: 'body',
@@ -182,7 +187,7 @@ $(function(){
                 $('#sibaimi').val(result[0]['sibaimi']);
                 $('#dangang1').val(result[0]['dangang1']);
                 $('#dangang2').val(result[0]['dangang2']);
-                $('#modalTitle').html('修改用户');     //头部修改
+                $('#modalTitle').html('修改成绩');     //头部修改
                 $('#hidInput').val('1');            //修改标志
                 $('#myModal').modal('show');
                 editId = result[0]['id'];
@@ -252,7 +257,6 @@ $(function(){
 
             }
         });
-
 })
 </script>
 

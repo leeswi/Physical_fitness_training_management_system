@@ -215,7 +215,7 @@ function Loadchange(num){
               title: '操作',
               align: 'center',
               valign: 'middle',
-              formatter:getinfo1,
+              formatter:getinfo2,
           }]
       });
     }
@@ -224,7 +224,7 @@ function Loadchange(num){
 function getinfo1(value,row,index){
             eval('rowobj='+JSON.stringify(row));
             //定义删除按钮样式，只有管理员或自己编辑的任务才有权删除
-            var style_del = '&nbsp;<a href="#'+rowobj['id']+'" class="btn-sm btn-danger">';
+            var style_del = '&nbsp;<a href="/delcontent/'+{{taskinfo[0].get('id','未知')}}+'/'+rowobj['cid']+'" class="btn-sm btn-danger">';
 
             return [
                 style_del,
@@ -232,6 +232,17 @@ function getinfo1(value,row,index){
                 '</a>'
             ].join('');
         }
+function getinfo2(value,row,index){
+    eval('rowobj='+JSON.stringify(row));
+    //定义删除按钮样式，只有管理员或自己编辑的任务才有权删除
+    var style_del = '&nbsp;<a href="/delplace/'+{{taskinfo[0].get('id','未知')}}+'/'+rowobj['plid']+'" class="btn-sm btn-danger">';
+
+    return [
+        style_del,
+            '<i class="fa fa-times"> 删除</i>',
+        '</a>'
+    ].join('');
+}
 
 
 $(function(){

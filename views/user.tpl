@@ -23,7 +23,7 @@
                 <div style="padding:-10px 0px;" class="widget-body no-padding">
                     <div class="tickets-container">
                         <div class="table-toolbar" style="float:left">
-                                <a id="adduser" href="javascript:void(0);" class="btn  btn-primary ">
+                            <a id="adduser" href="javascript:void(0);" class="btn btn-primary ">
                                 <i class="btn-label fa fa-plus"></i>添加用户
                             </a>
                             <a id="changeuser" href="javascript:void(0);" class="btn btn-warning shiny">

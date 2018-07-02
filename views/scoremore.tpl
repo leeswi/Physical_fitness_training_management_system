@@ -4,7 +4,7 @@
     <div class="row">
         <div class="col-lg-5 col-md-5 col-sm-12 col-xs-12">
              <form action="" method="post">
-             <div class="form-group">
+             <div class="form-group-x">
 				  <select id="name" style="width:70%;" name="name">
                     <option value=''>请选择要查询的对象</option>
                     %for name in name:
@@ -116,7 +116,7 @@
                                             %if(select):
                                                 {
                                                     value: [{{select[0].get('height',0)}}, {{select[0].get('weight',0)}}, {{select[0].get('naili',0)}},{{select[0].get('sudu',0)}}, {{select[0].get('liliang',0)}}],
-                                                    name: '选中项',
+                                                    name: "选中项",
                                                     lineStyle: {
                                                         normal: {
                                                         type: 'dashed'
@@ -135,7 +135,7 @@
         </div>
         <div class="col-lg-7 col-md-7 col-sm-12 col-xs-12">
             <form action="" method="post">
-             <div class="form-group">
+             <div class="form-group-x">
 				  <select id="date" style="width:70%;" name="date">
                     <option value=''>请选择测试成绩</option>
                     %for date in date:

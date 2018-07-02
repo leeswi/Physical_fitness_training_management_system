@@ -3,15 +3,15 @@
 import os,sys,json
 from bottle import request,route,error,run,default_app
 from bottle import template,static_file,redirect,abort
-import bottle
 import logging
 from beaker.middleware import SessionMiddleware
 from bottle import TEMPLATE_PATH
-import time,datetime
-import hashlib
+import datetime
 from gevent import monkey;
 import MySQLdb
 import hashlib
+import xlrd
+import time
 monkey.patch_all()
 
 db_name = 'task'
@@ -36,7 +36,7 @@ images_path = '/'.join((pro_path,'images'))
 download_path = '/'.join((pro_path,'download'))
 
 #定义文件上传存放的路径
-upload_path = '/'.join((pro_path,'upload'))
+upload_path = '/'.join((pro_path,'log/upload'))
 
 #定义模板路径
 TEMPLATE_PATH.append('/'.join((pro_path,'views')))
@@ -158,6 +158,11 @@ def server_static(filename):
     """定义图片资源路径"""
     return static_file(filename, root=images_path)
 
+@route('/log/upload/<filename:re:.*\.xls|.*\.xlsx>')
+def server_static(filename):
+    """定义图片资源路径"""
+    return static_file(filename, root=upload_path)
+
 @route('/')
 @checkLogin   #函数调用
 def index():
@@ -196,11 +201,6 @@ def adduser():
         message = "表单不允许为空！"
         print message
         return '-2'
-    # else:
-    #     qq = int(qq)
-    #     phone = int(phone)
-    #     access = int(access)
-
     sql = """
             INSERT INTO
                 user(name,username,passwd,birthday,sex,height,email,Company,weight,access,teamname)
@@ -790,7 +790,6 @@ def do_login():
 def logout():
     """退出系统"""
     s = request.environ.get('beaker.session')
-    user = s.get('user',None)
     try:
         s.delete()
     except Exception:
@@ -914,6 +913,48 @@ def getscore(date):
     """
     result = readDb(sql, (str,))
     return template('scoreinfo',scoreinfo=result,session=s)
+
+@route('/infoscore/<date>',method='POST')
+@checkAccess
+def get_file(date):
+    s = request.environ.get('beaker.session')
+    upload = request.files.get("file")
+    print upload.filename
+    upload.save('./upload', overwrite=True)
+    xlsfile = r'./upload/'+upload.filename
+    book = xlrd.open_workbook(xlsfile)
+    # 设置连接数据库
+    database = MySQLdb.connect(db=db_name,user=db_user,passwd=db_pass,host=db_ip,port=int(db_port),charset="utf8")
+    # 设置字符集
+    database.set_character_set('utf8')
+    cursor = database.cursor()
+    cursor.execute('SET NAMES utf8;')
+    cursor.execute('SET CHARACTER SET utf8;')
+    cursor.execute('SET character_set_connection=utf8;')
+    sql = """
+    REPLACE INTO 
+        score (id,wugongli,dangang1,sibaimi,dangang2,date) 
+    VALUES 
+        (%s,%s,%s,%s,%s,%s)
+    """
+    sheet = book.sheet_by_index(0)
+    for r in range(1, sheet.nrows):
+        id = sheet.cell(r, 0).value
+        wugongli = xlrd.xldate_as_tuple(sheet.cell(r, 1).value,0)
+        w_t = str(wugongli[3]) + ':' + str(wugongli[4]) + ':' + str(wugongli[5])
+        dangang1 = sheet.cell(r, 2).value
+        sibaimi = xlrd.xldate_as_tuple(sheet.cell(r, 3).value,0)
+        s_t = str(sibaimi[3]) + ':' + str(sibaimi[4]) + ':' + str(sibaimi[5])
+        dangang2 = sheet.cell(r, 4).value
+        date = date
+        values = (id, w_t, dangang1, s_t, dangang2, date)
+        cursor.execute(sql, values)
+    cursor.close()
+    database.commit()
+    database.close()
+    redirect('/infoscore/'+date)
+
+
 
 @route('/api/getscoreinfo/<date>',method=['GET', 'POST'])
 @checkAccess
@@ -1203,6 +1244,32 @@ def deltask(id):
     else:
         return '-1'
 
+@route('/delcontent/<id>/<cid>')
+@checkLogin
+def delcontent(id,cid):
+    """删除任务，其实就是把任务的删除状态改成0（0为被删除，1为正常）"""
+    s = request.environ.get('beaker.session')
+    del_userid = s['userid']
+    sql = "DELETE FROM pcontent WHERE cid=%s"
+    result = writeDb(sql,(cid,))
+    if result:
+        redirect('/infotask/'+id)
+    else:
+        return '-1'
+
+@route('/delplace/<id>/<plid>')
+@checkLogin
+def delplace(id,plid):
+    """删除任务，其实就是把任务的删除状态改成0（0为被删除，1为正常）"""
+    s = request.environ.get('beaker.session')
+    del_userid = s['userid']
+    sql = "DELETE FROM pplace WHERE plid=%s"
+    result = writeDb(sql,(plid,))
+    if result:
+        redirect('/infotask/'+id)
+    else:
+        return '-1'
+
 @route('/scoremore')
 @checkLogin
 def getscoremore():
@@ -1268,21 +1335,21 @@ def getscoremore():
         count((sibaimi <= '00:02:15' AND sibaimi>'00:02:00') OR NULL) AS 'z_lianghao',
         count(sibaimi <= '00:02:00' OR NULL)  AS 'z_youxiu',
         count(sibaimi > '00:02:30' OR NULL)  AS 'z_bujige',
-        count((dangang1 >= '12' AND dangang1 < '18') OR NULL) AS '1_jige',
-        count((dangang1 < '25' AND dangang1>='18') OR NULL) AS '1_lianghao',
-        count(dangang1 >= '25' OR NULL)  AS '1_youxiu',
-        count(dangang1 < '12' OR NULL)  AS '1_bujige',
-        count((dangang2 >= '9' AND dangang2 < '12') OR NULL) AS '2_jige',
-        count((dangang2 < '18' AND dangang2>='12') OR NULL) AS '2_lianghao',
-        count(dangang2 >= '18' OR NULL)  AS '2_youxiu',
-        count(dangang2 < '9' OR NULL)  AS '2_bujige'
+        count((dangang1 >= 12 AND dangang1 < 18) OR NULL) AS '1_jige',
+        count((dangang1 < 25 AND dangang1>=18) OR NULL) AS '1_lianghao',
+        count(dangang1 >= 25 OR NULL)  AS '1_youxiu',
+        count(dangang1 < 12 OR NULL)  AS '1_bujige',
+        count((dangang2 >= 9 AND dangang2 < 12) OR NULL) AS '2_jige',
+        count((dangang2 < 18 AND dangang2>=12) OR NULL) AS '2_lianghao',
+        count(dangang2 >= 18 OR NULL)  AS '2_youxiu',
+        count(dangang2 < 9 OR NULL)  AS '2_bujige'
     FROM score
     WHERE date = %s
     """
     sum_result=readDb(Sum_sql,(date,))
     return template('scoremore',result=result,name=name_result,date=date_result,sum=sum_result,select="",AVG_result=AVG_result)
 
-@route('/scoremore',method="POST")
+@route('/scoremore',method="POST")   #响应用户查询————成绩分析
 @checkLogin
 def getscoremore():
     s = request.environ.get('beaker.session')
@@ -1314,7 +1381,8 @@ def getscoremore():
     result = readDb(sql,(id,))
     name_sql = "select id,name from user;"
     name_result = readDb(name_sql, )
-    AVG_sql = """
+    #雷达图 平均成绩
+    AVG_sql = """  
         SELECT 
             FORMAT(1-(((avg(time_to_sec(s.wugongli)))-1020)/420),2)*100 as naili,
             FORMAT(1-(((avg(time_to_sec(s.sibaimi)))-100)/60),2)*100 as sudu,
@@ -1330,6 +1398,7 @@ def getscoremore():
             )
         """
     AVG_result = readDb(AVG_sql, )
+    #雷达图 选中项成绩
     if(select_id):
         sql2 = """
                 SELECT
@@ -1337,7 +1406,8 @@ def getscoremore():
                     FORMAT(1-(((avg(time_to_sec(s.sibaimi)))-100)/60),2)*100 as sudu,
                     FORMAT((AVG(s.dangang1)+AVG(s.dangang2)*2)/76,2)*100 as liliang,
                     u.height,
-                    u.weight
+                    u.weight,
+                    u.name
                 FROM
                 (
                 SELECT 
@@ -1358,7 +1428,7 @@ def getscoremore():
         select_res = ""
     Date_sql = "SELECT subject,date FROM scorelist WHERE del_status=1"
     date_result = readDb(Date_sql,)
-
+    #柱形图 统计和
     Sum_sql = """
         SELECT
             count((wugongli > '00:21:00' AND wugongli <= '00:23:00') OR NULL) AS 'w_jige',
@@ -1369,14 +1439,14 @@ def getscoremore():
             count((sibaimi <= '00:02:15' AND sibaimi>'00:02:00') OR NULL) AS 'z_lianghao',
             count(sibaimi <= '00:02:00' OR NULL)  AS 'z_youxiu',
             count(sibaimi > '00:02:30' OR NULL)  AS 'z_bujige',
-            count((dangang1 >= '12' AND dangang1 < '18') OR NULL) AS '1_jige',
-            count((dangang1 < '25' AND dangang1>='18') OR NULL) AS '1_lianghao',
-            count(dangang1 >= '25' OR NULL)  AS '1_youxiu',
-            count(dangang1 < '12' OR NULL)  AS '1_bujige',
-            count((dangang2 >= '9' AND dangang2 < '12') OR NULL) AS '2_jige',
-            count((dangang2 < '18' AND dangang2>='12') OR NULL) AS '2_lianghao',
-            count(dangang2 >= '18' OR NULL)  AS '2_youxiu',
-            count(dangang2 < '9' OR NULL)  AS '2_bujige'
+            count((dangang1 >= 12 AND dangang1 < 18) OR NULL) AS '1_jige',
+            count((dangang1 < 25 AND dangang1>=18) OR NULL) AS '1_lianghao',
+            count(dangang1 >= 25 OR NULL)  AS '1_youxiu',
+            count(dangang1 < 12 OR NULL)  AS '1_bujige',
+            count((dangang2 >= 9 AND dangang2 < 12) OR NULL) AS '2_jige',
+            count((dangang2 < 18 AND dangang2>=12) OR NULL) AS '2_lianghao',
+            count(dangang2 >= 18 OR NULL)  AS '2_youxiu',
+            count(dangang2 < 9 OR NULL)  AS '2_bujige'
         FROM score
         WHERE date = %s
         """
@@ -1392,4 +1462,4 @@ def getscoremore():
 if __name__ == '__main__':
     app = default_app()
     app = SessionMiddleware(app, session_opts)
-    run(app=app,host='172.20.10.2', port=9090,debug=True,server='gevent')
+    run(app=app,host='127.0.0.1', port=9090,debug=True,server='gevent')

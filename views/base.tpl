@@ -71,12 +71,12 @@
                     <ul class="breadcrumb">
                         <li>
                             <i class="fa fa-home"></i>
-                            <a href="#">首页</a>
+                            <a href="/">首页</a>
                         </li>
                         <li class="active">大厅</li>
                     </ul>
                 </div>
-                <div style="margin:30px 0px;"></div>
+                <div style="margin:0px 0px;"></div>
                 <!-- /Page Breadcrumb -->
                 <!-- Page Header
                 <div class="page-header position-relative">

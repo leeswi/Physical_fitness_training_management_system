@@ -2422,6 +2422,10 @@ input[type="search"] {
 }
 .form-group {
   margin-bottom: 15px;
+  transform:translate(0%,0%);
+}
+.form-group-x {
+  margin-bottom: 15px;
   transform:translate(10%,0%);
 }
 .radio,
